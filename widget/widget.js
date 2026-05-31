@@ -31,15 +31,20 @@
 
     #fw-overlay {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       z-index: 999998;
       cursor: crosshair;
       display: none;
+      overflow: hidden;
     }
 
     #fw-canvas {
       position: absolute;
-      inset: 0;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
     }
@@ -176,6 +181,42 @@
   `;
   document.body.appendChild(doneBtn);
 
+  const undoBtn = document.createElement("button");
+  undoBtn.textContent = "Undo";
+  undoBtn.style.cssText = `
+    position: fixed; top: 20px; right: 180px;
+    background: white; color: #374151;
+    border: 1px solid #d1d5db; padding: 10px 20px;
+    border-radius: 8px; font-size: 14px;
+    cursor: pointer; z-index: 9999999;
+    font-family: sans-serif; display: none;
+  `;
+  document.body.appendChild(undoBtn);
+
+  const clearBtn = document.createElement("button");
+  clearBtn.textContent = "Clear";
+  clearBtn.style.cssText = `
+    position: fixed; top: 20px; right: 90px;
+    background: white; color: #EF4444;
+    border: 1px solid #fca5a5; padding: 10px 20px;
+    border-radius: 8px; font-size: 14px;
+    cursor: pointer; z-index: 9999999;
+    font-family: sans-serif; display: none;
+  `;
+  document.body.appendChild(clearBtn);
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.textContent = "✕ Cancel";
+  cancelBtn.style.cssText = `
+    position: fixed; top: 20px; left: 20px;
+    background: white; color: #374151;
+    border: 1px solid #d1d5db; padding: 10px 20px;
+    border-radius: 8px; font-size: 14px;
+    cursor: pointer; z-index: 9999999;
+    font-family: sans-serif; display: none;
+  `;
+  document.body.appendChild(cancelBtn);
+
   const modal = document.createElement("div");
   modal.id = "fw-modal";
   modal.innerHTML = `
@@ -196,6 +237,8 @@
   let ctx = null;
   let lastX = 0;
   let lastY = 0;
+  let strokes = [];
+  let currentStroke = [];
 
   // ── Screenshot + Draw Flow ────────────────────────────────────────────────
   button.addEventListener("click", async () => {
@@ -203,48 +246,65 @@
     button.disabled = true;
 
     try {
-      // Load html2canvas dynamically
       await loadScript(
         "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
       );
 
-      // Hide widget button before screenshot
-      button.style.display = "none";
-
+      // Capture FIRST before touching anything
       const capturedCanvas = await html2canvas(document.body, {
         useCORS: true,
         allowTaint: true,
         scale: 1,
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+        windowWidth: document.documentElement.clientWidth,
+        windowHeight: document.documentElement.clientHeight,
+        scrollX: 0,
+        scrollY: -window.scrollY,
       });
 
       screenshotDataUrl = capturedCanvas.toDataURL("image/png");
 
-      // Setup drawing canvas over screenshot
+      // NOW hide button and lock page
+      button.style.display = "none";
+      document.body.style.overflow = "hidden";
+
       overlay.style.backgroundImage = `url(${screenshotDataUrl})`;
-      overlay.style.backgroundSize = "cover";
+      overlay.style.backgroundSize = "100% 100%";
+      overlay.style.backgroundRepeat = "no-repeat";
+      overlay.style.backgroundPosition = "top left";
       overlay.style.display = "block";
 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = document.documentElement.clientWidth;
+      canvas.height = document.documentElement.clientHeight;
       ctx = canvas.getContext("2d");
       ctx.strokeStyle = "#EF4444";
       ctx.lineWidth = 3;
       ctx.lineCap = "round";
 
+      strokes = [];
+      currentStroke = [];
+
       hint.style.display = "block";
       doneBtn.style.display = "block";
+      undoBtn.style.display = "block";
+      clearBtn.style.display = "block";
+      cancelBtn.style.display = "block";
     } catch (err) {
       console.error("[FeedbackWidget] Screenshot failed:", err);
       button.textContent = "Feedback";
       button.disabled = false;
       button.style.display = "block";
+      document.body.style.overflow = "";
     }
   });
 
   // Drawing logic
   canvas.addEventListener("mousedown", (e) => {
     isDrawing = true;
+    currentStroke = [];
     [lastX, lastY] = [e.offsetX, e.offsetY];
+    currentStroke.push({ x: lastX, y: lastY });
   });
 
   canvas.addEventListener("mousemove", (e) => {
@@ -254,20 +314,56 @@
     ctx.lineTo(e.offsetX, e.offsetY);
     ctx.stroke();
     [lastX, lastY] = [e.offsetX, e.offsetY];
+    currentStroke.push({ x: lastX, y: lastY });
   });
 
   canvas.addEventListener("mouseup", () => {
+    if (currentStroke.length > 0) strokes.push([...currentStroke]);
     isDrawing = false;
-  });
-  canvas.addEventListener("mouseleave", () => {
-    isDrawing = false;
+    currentStroke = [];
   });
 
-  // Done drawing — merge screenshot + drawing into one image
+  canvas.addEventListener("mouseleave", () => {
+    if (currentStroke.length > 0) strokes.push([...currentStroke]);
+    isDrawing = false;
+    currentStroke = [];
+  });
+
+  undoBtn.addEventListener("click", () => {
+    strokes.pop();
+    redrawStrokes();
+  });
+
+  clearBtn.addEventListener("click", () => {
+    strokes = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    resetWidget();
+  });
+
+  function redrawStrokes() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "#EF4444";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    strokes.forEach((stroke) => {
+      if (stroke.length < 2) return;
+      ctx.beginPath();
+      ctx.moveTo(stroke[0].x, stroke[0].y);
+      for (let i = 1; i < stroke.length; i++) {
+        ctx.lineTo(stroke[i].x, stroke[i].y);
+      }
+      ctx.stroke();
+    });
+  }
+
+  // Done drawing
   doneBtn.addEventListener("click", () => {
     const mergedCanvas = document.createElement("canvas");
-    mergedCanvas.width = window.innerWidth;
-    mergedCanvas.height = window.innerHeight;
+    mergedCanvas.width = document.documentElement.clientWidth;
+    mergedCanvas.height = document.documentElement.clientHeight;
     const mergedCtx = mergedCanvas.getContext("2d");
 
     const bg = new Image();
@@ -276,30 +372,31 @@
       mergedCtx.drawImage(canvas, 0, 0);
       screenshotDataUrl = mergedCanvas.toDataURL("image/png");
 
-      // Show modal with preview
       const preview = document.getElementById("fw-preview");
       preview.src = screenshotDataUrl;
       preview.style.display = "block";
 
+      // Restore body before showing modal
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+
       overlay.style.display = "none";
       hint.style.display = "none";
       doneBtn.style.display = "none";
+      undoBtn.style.display = "none";
+      clearBtn.style.display = "none";
+      cancelBtn.style.display = "none";
       modal.style.display = "block";
     };
     bg.src = screenshotDataUrl;
   });
 
   // ── Modal Actions ─────────────────────────────────────────────────────────
-  document.getElementById("fw-cancel") &&
-    document.addEventListener("click", (e) => {
-      if (e.target.id === "fw-cancel") {
-        resetWidget();
-      }
-
-      if (e.target.id === "fw-submit") {
-        submitFeedback();
-      }
-    });
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "fw-cancel") resetWidget();
+    if (e.target.id === "fw-submit") submitFeedback();
+  });
 
   async function submitFeedback() {
     const comment = document.getElementById("fw-comment").value.trim();
@@ -347,15 +444,24 @@
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function resetWidget() {
+    document.body.style.overflow = "";
+
     modal.style.display = "none";
     overlay.style.display = "none";
     hint.style.display = "none";
     doneBtn.style.display = "none";
+    undoBtn.style.display = "none";
+    clearBtn.style.display = "none";
+    cancelBtn.style.display = "none";
+
     screenshotDataUrl = null;
+    strokes = [];
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     button.textContent = "Feedback";
     button.disabled = false;
     button.style.display = "block";
+
     modal.innerHTML = `
       <h3>Submit Feedback</h3>
       <p>Describe the issue you're experiencing</p>
