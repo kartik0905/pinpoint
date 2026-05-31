@@ -36,6 +36,18 @@ router.post("/", async (req, res) => {
       $inc: { feedbackCount: 1 },
     });
 
+    const io = req.app.get("io");
+    io.to(project._id.toString()).emit("new_feedback", {
+      _id: feedback._id,
+      comment: feedback.comment,
+      url: feedback.url,
+      browser: feedback.browser,
+      device: feedback.device,
+      status: feedback.status,
+      screenshot: feedback.screenshot,
+      createdAt: feedback.createdAt,
+    });
+
     res.status(201).json({ message: "Feedback submitted", id: feedback._id });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
