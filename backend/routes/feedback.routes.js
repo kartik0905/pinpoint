@@ -130,4 +130,35 @@ router.patch("/:id", auth, async (req, res) => {
   }
 });
 
+// DELETE /api/feedback/:id
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const feedback = await Feedback.findById(req.params.id).populate('projectId')
+
+    if (!feedback) {
+      return res.status(404).json({ message: 'Feedback not found' })
+    }
+
+    const project = await Project.findOne({
+      _id: feedback.projectId,
+      userId: req.user.id
+    })
+
+    if (!project) {
+      return res.status(403).json({ message: 'Not authorized' })
+    }
+
+    await feedback.deleteOne()
+
+    // Decrement feedback count
+    await Project.findByIdAndUpdate(project._id, {
+      $inc: { feedbackCount: -1 }
+    })
+
+    res.json({ message: 'Feedback deleted' })
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message })
+  }
+})
+
 module.exports = router;
