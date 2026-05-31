@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
 const Otp = require("../models/Otp.model");
 const passport = require("../config/passport");
+const { sendOtpEmail } = require("../utils/mailer");
 
 // Email validation regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
