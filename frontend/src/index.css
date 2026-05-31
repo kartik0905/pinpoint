@@ -1,4 +1,3 @@
 @tailwind base;
-@variant dark (&:where(.dark, .dark *));
 @tailwind components;
 @tailwind utilities;
