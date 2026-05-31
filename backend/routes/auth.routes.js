@@ -2,7 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
-const Otp = require("../models/Otp.models");
+const Otp = require("../models/Otp.model");
 const passport = require("../config/passport");
 
 // Email validation regex
