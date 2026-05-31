@@ -160,6 +160,10 @@ export default function Register() {
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
+            <p className="text-xs text-zinc-500 mt-2">
+              Must be at least 8 characters with 1 uppercase, 1 lowercase, 1
+              number, and 1 special character.
+            </p>
           </div>
           <button
             type="submit"

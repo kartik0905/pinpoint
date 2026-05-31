@@ -6,6 +6,8 @@ const passport = require("../config/passport");
 
 // Email validation regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const passwordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 // POST /api/auth/register
 router.post("/register", async (req, res) => {
@@ -24,12 +26,13 @@ router.post("/register", async (req, res) => {
         .json({ message: "Please enter a valid email address" });
     }
 
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 6 characters" });
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character.",
+      });
     }
-
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already registered" });
