@@ -16,7 +16,7 @@ export default function AuthCallback() {
         const userData = JSON.parse(decodeURIComponent(user));
         login(token, userData);
         // Small delay to let AuthContext update before redirecting
-        setTimeout(() => navigate("/"), 100);
+        setTimeout(() => navigate("/dashboard"), 100);
       } catch (err) {
         console.error("Auth callback error:", err);
         navigate("/login");

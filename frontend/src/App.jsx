@@ -7,6 +7,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import FeedbackDetail from "./pages/FeedbackDetail";
 import { Toaster } from "react-hot-toast";
 import AuthCallback from "./pages/AuthCallback";
+import Landing from "./pages/Landing";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -25,11 +26,12 @@ function App() {
       <BrowserRouter>
         <Toaster position="top-right" />
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
