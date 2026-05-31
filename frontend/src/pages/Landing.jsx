@@ -1,6 +1,40 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Landing() {
+  const [openFaq, setOpenFaq] = useState(null);
+
+  const toggleFaq = (index) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
+
+  const faqs = [
+    {
+      q: "Why should I add a third-party script to my HTML?",
+      a: "Because text-based bug reports waste engineering time. Instead of users saying 'the thing on the left is broken,' Pinpoint gives you exact visual context, browser environment details, and the precise element they clicked. It replaces back-and-forth emails with actionable, visual bug reports.",
+    },
+    {
+      q: "What happens to my website if Pinpoint goes down?",
+      a: "Absolutely nothing. The Pinpoint script fails silently. If our servers experience downtime, the feedback widget simply won't appear on your page. Your website will continue to load and function normally without any broken elements or errors visible to your users.",
+    },
+    {
+      q: "Will adding this script slow down my page load times?",
+      a: "No. The script is heavily minified, served via a global CDN, and loads asynchronously (async/defer). This means it waits for your core website to finish loading before it initializes, ensuring zero impact on your main thread and Core Web Vitals.",
+    },
+    {
+      q: "Will the widget conflict with my website's CSS or JavaScript?",
+      a: "Pinpoint is fully isolated. We use strictly scoped CSS and encapsulated logic so our styling will never bleed into your website, and your styles won't break the widget.",
+    },
+    {
+      q: "Do you collect sensitive user data?",
+      a: "We only collect what the user explicitly submits in their feedback, plus non-sensitive metadata (like browser version and screen resolution) to help you debug. We do not track users across sites or scrape unsubmitted form data.",
+    },
+    {
+      q: "Are you GDPR and CCPA compliant?",
+      a: "Yes. We do not use third-party tracking cookies, we do not track your users across different websites, and we only process data that is explicitly submitted by the user through the feedback form.",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navbar */}
@@ -62,7 +96,7 @@ export default function Landing() {
           <p className="text-gray-500 text-center mb-12 text-sm">
             Set up in 2 minutes. No backend required.
           </p>
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 step: "01",
@@ -106,8 +140,8 @@ export default function Landing() {
             One line. Works on any website.
           </p>
         </div>
-        <div className="bg-gray-900 rounded-xl px-6 py-5 flex items-center justify-between gap-4">
-          <code className="text-green-400 text-sm">
+        <div className="bg-gray-900 rounded-xl px-6 py-5 flex items-center justify-between gap-4 overflow-x-auto">
+          <code className="text-green-400 text-sm whitespace-nowrap">
             {`<script src="https://getpinpoint.io/widget.js" data-token="your_token"></script>`}
           </code>
         </div>
@@ -119,7 +153,7 @@ export default function Landing() {
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-12">
             Everything you need
           </h2>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               {
                 title: "Visual annotations",
@@ -160,8 +194,56 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* FAQs Dropdown */}
+      <section className="bg-white py-20">
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-4">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                className="border border-gray-200 rounded-lg overflow-hidden"
+              >
+                <button
+                  onClick={() => toggleFaq(i)}
+                  className="w-full flex justify-between items-center p-5 bg-white hover:bg-gray-50 transition-colors duration-200 text-left"
+                >
+                  <h3 className="text-base font-semibold text-gray-900 pr-4">
+                    {faq.q}
+                  </h3>
+                  <svg
+                    className={`w-5 h-5 text-gray-500 flex-shrink-0 transform transition-transform duration-200 ${
+                      openFaq === i ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                {openFaq === i && (
+                  <div className="p-5 pt-0 bg-white">
+                    <p className="text-sm text-gray-500 leading-relaxed border-t border-gray-100 pt-4">
+                      {faq.a}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="max-w-4xl mx-auto px-6 py-24 text-center">
+      <section className="max-w-4xl mx-auto px-6 py-24 text-center border-t border-gray-50">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
           Stop guessing. Start fixing.
         </h2>
