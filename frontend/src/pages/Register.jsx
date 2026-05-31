@@ -164,7 +164,7 @@ export default function Register() {
               <input
                 type="email"
                 required
-                placeholder="student@geu.ac.in"
+                placeholder="Enter your email address"
                 className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 dark:focus:border-cyan-500 transition-all duration-300 shadow-sm dark:shadow-none"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
