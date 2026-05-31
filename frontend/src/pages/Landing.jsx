@@ -2,61 +2,61 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 export default function Landing() {
-  const [openFaq, setOpenFaq] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [activeFaq, setActiveFaq] = useState(0);
+
+  // Initialize theme from localStorage, default to dark
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme ? savedTheme === "dark" : true;
+  });
 
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
   }, [isDarkMode]);
 
-  const toggleFaq = (index) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   const faqs = [
-    {
-      q: "Why should I add a third-party script to my HTML?",
-      a: "Because text-based bug reports waste engineering time. Instead of users saying 'the thing on the left is broken,' Pinpoint gives you exact visual context, browser environment details, and the precise element they clicked. It replaces back-and-forth emails with actionable, visual bug reports.",
-    },
-    {
-      q: "What happens to my website if Pinpoint goes down?",
-      a: "Absolutely nothing. The Pinpoint script fails silently. If our servers experience downtime, the feedback widget simply won't appear on your page. Your website will continue to load and function normally without any broken elements or errors visible to your users.",
-    },
-    {
-      q: "Will adding this script slow down my page load times?",
-      a: "No. The script is heavily minified, served via a global CDN, and loads asynchronously (async/defer). This means it waits for your core website to finish loading before it initializes, ensuring zero impact on your main thread and Core Web Vitals.",
-    },
-    {
-      q: "Will the widget conflict with my website's CSS or JavaScript?",
-      a: "Pinpoint is fully isolated. We use strictly scoped CSS and encapsulated logic so our styling will never bleed into your website, and your styles won't break the widget.",
-    },
-    {
-      q: "Is the widget secure against XSS (Cross-Site Scripting)?",
-      a: "Yes. The widget operates inside a secure boundary. We strictly sanitize all inputs and never execute external or user-generated code on your domain, keeping your site safe from injection vulnerabilities.",
-    },
-    {
-      q: "What if a user's screenshot includes a password or credit card field?",
-      a: 'Our screenshot engine automatically detects and redacts standard sensitive HTML input fields (like <input type="password">) directly in the browser before the image is ever uploaded to our servers, keeping sensitive data out of your dashboard.',
-    },
-    {
-      q: "Do you collect sensitive user data?",
-      a: "We only collect what the user explicitly submits in their feedback, plus non-sensitive metadata (like browser version and screen resolution) to help you debug. We do not scrape unsubmitted form data.",
-    },
-    {
-      q: "Are you GDPR and CCPA compliant?",
-      a: "Yes. We do not use third-party tracking cookies, we do not track your users across different websites, and we only process data that is explicitly submitted by the user through the feedback form.",
-    },
-  ];
+  {
+    q: "Is it safe to add a third-party script to my website?",
+    a: "Yes. Pinpoint's widget is open source — every line of code is readable before you add it. The script only activates when a user deliberately clicks the Feedback button. It does not run in the background, does not access form inputs, and does not read cookies or localStorage. You can verify this yourself before deploying.",
+  },
+  {
+    q: "What happens to my website if Pinpoint's servers go down?",
+    a: "Nothing. The entire widget is wrapped in a try/catch block that fails silently. If our servers are unreachable, the Feedback button simply does not appear. Your website continues to load and function normally — no broken elements, no console errors visible to your users.",
+  },
+  {
+    q: "Will this script affect my page load speed or Core Web Vitals?",
+    a: "No. The script loads asynchronously and defers initialization until after your page's critical resources have loaded. It has zero impact on your main thread, LCP, or CLS scores. The html2canvas dependency is loaded on-demand only when a user clicks the Feedback button — not on page load.",
+  },
+  {
+    q: "Can the widget's styles break my existing CSS?",
+    a: "No. Every element Pinpoint injects into your DOM uses namespaced IDs prefixed with 'fw-' and scoped inline styles. Our styles cannot bleed into your components, and your stylesheets cannot override the widget's UI. The two are fully isolated.",
+  },
+  {
+    q: "What if a screenshot captures a password field or sensitive input?",
+    a: "Sensitive inputs are handled at the browser level before any data leaves the device. Standard HTML password fields (input type='password') are not captured by html2canvas by default. For additional protection, you can add a data-feedback-ignore attribute to any element and it will be excluded from the screenshot entirely.",
+  },
+  {
+    q: "What data does Pinpoint actually collect?",
+    a: "Only what the user explicitly submits: their comment, the screenshot they approved, the page URL, browser version, and device type. We do not scrape unsubmitted form data, track mouse movements, record keystrokes, or monitor user behaviour in any way outside of a feedback submission.",
+  },
+  {
+    q: "Can someone use the widget to inject malicious code into my site?",
+    a: "No. The widget sends data to Pinpoint's servers, not back into your website. All user input is stored as plain text in our database and sanitized before being rendered in your dashboard. There is no execution path from a feedback submission back into your website's DOM.",
+  },
+  {
+    q: "Is Pinpoint compliant with GDPR and CCPA?",
+    a: "Yes. Pinpoint does not use third-party tracking cookies, does not build user profiles, and does not share data with advertising networks. We only process data that a user voluntarily submits through the feedback form. No data is collected passively.",
+  },
+];
 
-  // Softened dark mode to zinc-900, introduced indigo-50/50 for a minor color fill in light mode
   return (
     <div className="min-h-screen bg-indigo-50/50 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 selection:bg-cyan-500/30 relative overflow-hidden font-sans transition-colors duration-500">
       {/* Background Ambient Glows */}
@@ -80,12 +80,11 @@ export default function Landing() {
               <path d="M12 2v4M12 18v4M4 12H2M22 12h-2" />
               <circle cx="12" cy="12" r="10" className="opacity-30" />
             </svg>
-            <span className="text-xl font-bold text-zinc-900 dark:text-white tracking-tighter transition-colors duration-500">
+            <span className="text-xl font-bold font-serif text-zinc-900 dark:text-white tracking-tight transition-colors duration-500">
               Pinpoint
             </span>
           </Link>
           <div className="flex items-center gap-4 md:gap-6">
-            {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-white dark:hover:bg-zinc-700/50 transition-all focus:outline-none"
@@ -121,7 +120,6 @@ export default function Landing() {
                 </svg>
               )}
             </button>
-
             <Link
               to="/login"
               className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
@@ -139,15 +137,15 @@ export default function Landing() {
       </div>
 
       {/* Hero Section */}
-      <section className="max-w-4xl mx-auto px-6 pt-48 pb-20 text-center relative z-10">
-        <div className="inline-flex items-center gap-2 bg-white/60 dark:bg-zinc-800/50 border border-white dark:border-zinc-700/50 backdrop-blur-sm text-cyan-700 dark:text-cyan-400 text-xs font-semibold px-4 py-2 rounded-full mb-8 shadow-sm dark:shadow-xl transition-colors duration-500">
+      <section className="max-w-5xl mx-auto px-6 pt-48 pb-20 text-center relative z-10">
+        <div className="inline-flex items-center gap-3 bg-white/60 dark:bg-zinc-800/50 border border-white dark:border-zinc-700/50 backdrop-blur-sm text-cyan-700 dark:text-cyan-400 text-xs font-mono px-5 py-2 rounded-full mb-8 shadow-sm dark:shadow-xl uppercase tracking-wider transition-colors duration-500">
           <span className="w-2 h-2 rounded-full bg-cyan-500 dark:bg-cyan-400 animate-pulse"></span>
-          ONE SCRIPT TAG. INSTANT FEEDBACK.
+          One script tag. Instant feedback.
         </div>
 
-        <h1 className="text-6xl md:text-7xl font-bold text-zinc-900 dark:text-white leading-[1.1] mb-8 tracking-tighter transition-colors duration-500">
+        <h1 className="text-6xl md:text-8xl font-serif text-zinc-900 dark:text-white leading-[1.05] mb-8 transition-colors duration-500">
           Your users know what's broken. <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 dark:from-cyan-400 dark:via-blue-400 dark:to-purple-400">
+          <span className="text-transparent font-sans font-bold bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 dark:from-cyan-400 dark:via-blue-400 dark:to-purple-400 tracking-tighter">
             Now you will too.
           </span>
         </h1>
@@ -205,9 +203,11 @@ export default function Landing() {
       {/* Bento Box Features */}
       <section className="max-w-6xl mx-auto px-6 py-24 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-zinc-900 dark:text-white mb-4 tracking-tight transition-colors duration-500">
+          <h2 className="text-4xl md:text-5xl font-serif text-zinc-900 dark:text-white mb-4 transition-colors duration-500">
             Everything you need.{" "}
-            <span className="text-zinc-500">Nothing you don't.</span>
+            <span className="text-zinc-500 dark:text-zinc-600 italic">
+              Nothing you don't.
+            </span>
           </h2>
         </div>
 
@@ -215,7 +215,7 @@ export default function Landing() {
           {/* Large Card 1 */}
           <div className="md:col-span-2 bg-white dark:bg-zinc-800/40 dark:bg-gradient-to-br dark:from-zinc-800/60 dark:to-zinc-800/20 border border-white dark:border-zinc-700/50 rounded-3xl p-8 hover:border-indigo-100 dark:hover:border-zinc-600/80 transition-all flex flex-col justify-end relative overflow-hidden group shadow-xl shadow-indigo-100/50 hover:shadow-2xl hover:shadow-indigo-200/50 dark:shadow-none">
             <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-50/80 dark:bg-cyan-500/10 blur-3xl rounded-full group-hover:bg-cyan-100/80 dark:group-hover:bg-cyan-500/20 transition-all"></div>
-            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2 relative z-10 transition-colors duration-500">
+            <h3 className="text-2xl font-serif text-zinc-900 dark:text-white mb-2 relative z-10 transition-colors duration-500">
               Visual annotations
             </h3>
             <p className="text-zinc-600 dark:text-zinc-400 relative z-10 transition-colors duration-500">
@@ -227,7 +227,7 @@ export default function Landing() {
           {/* Small Card 1 */}
           <div className="md:col-span-1 bg-white dark:bg-zinc-800/40 dark:bg-gradient-to-br dark:from-zinc-800/60 dark:to-zinc-800/20 border border-white dark:border-zinc-700/50 rounded-3xl p-8 hover:border-indigo-100 dark:hover:border-zinc-600/80 transition-all flex flex-col justify-end group relative overflow-hidden shadow-xl shadow-indigo-100/50 hover:shadow-2xl hover:shadow-indigo-200/50 dark:shadow-none">
             <div className="absolute top-0 left-0 w-32 h-32 bg-purple-50/80 dark:bg-purple-500/10 blur-2xl rounded-full group-hover:bg-purple-100/80 dark:group-hover:bg-purple-500/20 transition-all"></div>
-            <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2 relative z-10 transition-colors duration-500">
+            <h3 className="text-xl font-serif text-zinc-900 dark:text-white mb-2 relative z-10 transition-colors duration-500">
               Auto-Screenshots
             </h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 relative z-10 transition-colors duration-500">
@@ -238,7 +238,7 @@ export default function Landing() {
           {/* Small Card 2 */}
           <div className="md:col-span-1 bg-white dark:bg-zinc-800/40 dark:bg-gradient-to-br dark:from-zinc-800/60 dark:to-zinc-800/20 border border-white dark:border-zinc-700/50 rounded-3xl p-8 hover:border-indigo-100 dark:hover:border-zinc-600/80 transition-all flex flex-col justify-end group relative overflow-hidden shadow-xl shadow-indigo-100/50 hover:shadow-2xl hover:shadow-indigo-200/50 dark:shadow-none">
             <div className="absolute bottom-0 right-0 w-32 h-32 bg-blue-50/80 dark:bg-blue-500/10 blur-2xl rounded-full group-hover:bg-blue-100/80 dark:group-hover:bg-blue-500/20 transition-all"></div>
-            <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2 relative z-10 transition-colors duration-500">
+            <h3 className="text-xl font-serif text-zinc-900 dark:text-white mb-2 relative z-10 transition-colors duration-500">
               Environment Data
             </h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 relative z-10 transition-colors duration-500">
@@ -249,7 +249,7 @@ export default function Landing() {
           {/* Large Card 2 */}
           <div className="md:col-span-2 bg-white dark:bg-zinc-800/40 dark:bg-gradient-to-br dark:from-zinc-800/60 dark:to-zinc-800/20 border border-white dark:border-zinc-700/50 rounded-3xl p-8 hover:border-indigo-100 dark:hover:border-zinc-600/80 transition-all flex flex-col justify-end relative overflow-hidden group shadow-xl shadow-indigo-100/50 hover:shadow-2xl hover:shadow-indigo-200/50 dark:shadow-none">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02] dark:opacity-[0.03]"></div>
-            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2 relative z-10 transition-colors duration-500">
+            <h3 className="text-2xl font-serif text-zinc-900 dark:text-white mb-2 relative z-10 transition-colors duration-500">
               Real-time Dashboard
             </h3>
             <p className="text-zinc-600 dark:text-zinc-400 relative z-10 transition-colors duration-500">
@@ -260,68 +260,73 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FAQs */}
+      {/* Split-Pane FAQs Design */}
       <section className="py-24 relative z-10">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-zinc-900 dark:text-white mb-4 tracking-tight transition-colors duration-500">
-              Built for performance.
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-16 text-center lg:text-left">
+            <h2 className="text-4xl md:text-5xl font-serif text-zinc-900 dark:text-white mb-4 transition-colors duration-500">
+              Built defensively.
             </h2>
-            <p className="text-zinc-500 dark:text-zinc-400 transition-colors duration-500">
-              Answers to your technical and security questions.
+            <p className="text-zinc-500 dark:text-zinc-400 font-mono text-sm uppercase tracking-widest transition-colors duration-500">
+              Security & Performance Details
             </p>
           </div>
-          <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <div
-                key={i}
-                className="border border-white dark:border-zinc-700/50 rounded-2xl overflow-hidden bg-white/80 dark:bg-zinc-800/30 backdrop-blur-sm shadow-sm shadow-indigo-100/50 dark:shadow-none transition-colors duration-500 hover:shadow-md hover:border-indigo-100 dark:hover:border-zinc-600/80"
-              >
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            {/* Left Column: Navigation List */}
+            <div className="lg:col-span-5 space-y-2">
+              {faqs.map((faq, i) => (
                 <button
-                  onClick={() => toggleFaq(i)}
-                  className="w-full flex justify-between items-center p-6 hover:bg-white dark:hover:bg-zinc-800/50 transition-colors duration-200 text-left focus:outline-none"
+                  key={i}
+                  onClick={() => setActiveFaq(i)}
+                  className={`w-full text-left px-6 py-5 rounded-2xl transition-all duration-300 border ${
+                    activeFaq === i
+                      ? "bg-white dark:bg-white/[0.08] border-indigo-100 dark:border-white/20 shadow-md shadow-indigo-100/50 dark:shadow-lg"
+                      : "bg-transparent border-transparent hover:bg-white/50 dark:hover:bg-white/[0.02]"
+                  }`}
                 >
-                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-200 pr-4 transition-colors duration-500">
+                  <h3
+                    className={`font-medium transition-colors duration-300 ${activeFaq === i ? "text-cyan-700 dark:text-cyan-300" : "text-zinc-600 dark:text-zinc-400"}`}
+                  >
                     {faq.q}
                   </h3>
-                  <div
-                    className={`w-8 h-8 rounded-full bg-indigo-50/50 dark:bg-zinc-700/30 flex items-center justify-center flex-shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-45 bg-indigo-100/80 dark:bg-zinc-600/50" : ""}`}
-                  >
-                    <svg
-                      className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                  </div>
                 </button>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaq === i ? "max-h-48 opacity-100" : "max-h-0 opacity-0"}`}
-                >
-                  <div className="p-6 pt-0">
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed border-t border-indigo-50/80 dark:border-zinc-700/50 pt-4 transition-colors duration-500">
-                      {faq.a}
-                    </p>
-                  </div>
+              ))}
+            </div>
+
+            {/* Right Column: Display Card */}
+            <div className="lg:col-span-7 hidden lg:block">
+              <div className="h-full bg-white/80 dark:bg-white/[0.02] backdrop-blur-xl border border-white dark:border-white/10 rounded-3xl p-12 flex flex-col justify-center transition-colors duration-500 shadow-xl shadow-indigo-100/30 dark:shadow-none">
+                <div className="inline-flex items-center gap-2 mb-6 text-cyan-600 dark:text-cyan-400 font-mono text-xs uppercase tracking-widest">
+                  <span className="w-8 h-px bg-cyan-600/50 dark:bg-cyan-400/50"></span>
+                  Answer
                 </div>
+                <p
+                  key={activeFaq}
+                  className="text-2xl lg:text-3xl font-serif text-zinc-800 dark:text-white leading-relaxed animate-[fadeIn_0.5s_ease-out]"
+                >
+                  {faqs[activeFaq].a}
+                </p>
               </div>
-            ))}
+            </div>
+
+            {/* Mobile Fallback Answer */}
+            <div className="lg:hidden lg:col-span-7">
+              <div className="bg-white dark:bg-white/[0.04] border border-indigo-50 dark:border-white/10 rounded-2xl p-6 mt-4 shadow-md dark:shadow-none transition-colors duration-500">
+                <p className="text-lg font-serif text-zinc-800 dark:text-white leading-relaxed">
+                  {faqs[activeFaq].a}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="max-w-5xl mx-auto px-6 py-32 relative z-10">
-        <div className="bg-gradient-to-b from-white/80 to-indigo-50/50 dark:from-cyan-900/30 dark:to-blue-900/20 border border-white dark:border-cyan-500/20 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl shadow-indigo-200/40 dark:shadow-none transition-colors duration-500">
+        <div className="bg-gradient-to-b from-white/80 to-indigo-50/50 dark:from-cyan-900/40 dark:to-blue-900/20 border border-white dark:border-cyan-500/20 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl shadow-indigo-200/40 dark:shadow-none transition-colors duration-500">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-30 dark:opacity-50"></div>
-          <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-white mb-6 tracking-tight relative z-10 transition-colors duration-500">
+          <h2 className="text-4xl md:text-6xl font-serif text-zinc-900 dark:text-white mb-6 relative z-10 transition-colors duration-500">
             Ready to fix bugs faster?
           </h2>
           <p className="text-zinc-600 dark:text-cyan-100/60 mb-10 text-lg relative z-10 max-w-xl mx-auto transition-colors duration-500">
@@ -353,11 +358,11 @@ export default function Landing() {
               <circle cx="12" cy="12" r="4" />
               <path d="M12 2v4M12 18v4M4 12H2M22 12h-2" />
             </svg>
-            <span className="text-xl font-bold text-zinc-900 dark:text-white tracking-tighter transition-colors duration-500">
+            <span className="text-xl font-bold font-serif text-zinc-900 dark:text-white tracking-tighter transition-colors duration-500">
               Pinpoint
             </span>
           </div>
-          <span className="text-sm text-zinc-500 dark:text-zinc-500">
+          <span className="text-sm font-mono text-zinc-500">
             © 2026 Pinpoint. Built by Kartik Garg.
           </span>
         </div>
