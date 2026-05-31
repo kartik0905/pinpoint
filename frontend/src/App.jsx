@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import ProjectDetail from "./pages/ProjectDetail";
 import FeedbackDetail from "./pages/FeedbackDetail";
 import { Toaster } from "react-hot-toast";
+import AuthCallback from "./pages/AuthCallback";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -26,6 +27,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route
             path="/"
             element={
