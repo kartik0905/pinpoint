@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -180,7 +181,7 @@ export default function Login() {
         </div>
 
         <a
-          href="http://localhost:3000/api/auth/google"
+          href={`${API_URL.replace("/api", "")}/api/auth/google`}
           className="w-full flex items-center justify-center gap-3 bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl py-2.5 text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm dark:shadow-none"
         >
           <svg width="18" height="18" viewBox="0 0 18 18">

@@ -1,8 +1,11 @@
+import { SOCKET_URL, WIDGET_URL } from "../config";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
+
+
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -32,7 +35,7 @@ export default function ProjectDetail() {
   useEffect(() => {
     fetchData();
 
-    const socket = io("http://localhost:3000");
+    const socket = io(SOCKET_URL);
 
     socket.on("connect", () => {
       socket.emit("join_project", id);
@@ -64,9 +67,9 @@ export default function ProjectDetail() {
   };
 
   const copyScriptTag = () => {
-    const tag = `<script src="http://localhost:5500/widget.js" data-token="${project.token}"></script>`;
+    const tag = `<script src="${WIDGET_URL}" data-token="${project.token}"></script>`;
     navigator.clipboard.writeText(tag);
-    toast.success("Script tag copied to clipboard!");
+    toast.success("Script tag copied!");
   };
 
   const updateStatus = async (feedbackId, status) => {
@@ -262,9 +265,7 @@ export default function ProjectDetail() {
             <code className="text-sm font-mono whitespace-nowrap">
               <span className="text-pink-500">&lt;script</span>{" "}
               <span className="text-emerald-400">src</span>=
-              <span className="text-yellow-300">
-                "http://localhost:5500/widget.js"
-              </span>{" "}
+              <span className="text-yellow-300">"{WIDGET_URL}"</span>{" "}
               <span className="text-emerald-400">data-token</span>=
               <span className="text-yellow-300">"{project?.token}"</span>
               <span className="text-pink-500">&gt;&lt;/script&gt;</span>

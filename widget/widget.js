@@ -2,7 +2,7 @@
   // ── Config ──────────────────────────────────────────────────────────────
   const script = document.currentScript;
   const token = script.getAttribute("data-token");
-  const API_URL = "http://localhost:3000/api/feedback";
+  const API_URL = "https://pinpoint-backend-cq9k.onrender.com/api/feedback";
 
   if (!token) {
     console.error("[FeedbackWidget] No data-token found on script tag");
