@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
+import toast from "react-hot-toast";
 
 export default function Dashboard() {
   const [projects, setProjects] = useState([]);
   const [newProjectName, setNewProjectName] = useState("");
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [error, setError] = useState("");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ export default function Dashboard() {
       const res = await API.get("/projects");
       setProjects(res.data);
     } catch (err) {
-      setError("Failed to load projects");
+      toast.error("Failed to load projects");
     } finally {
       setLoading(false);
     }
@@ -35,21 +35,47 @@ export default function Dashboard() {
       const res = await API.post("/projects", { name: newProjectName.trim() });
       setProjects([res.data, ...projects]);
       setNewProjectName("");
+      toast.success("Project created");
     } catch (err) {
-      setError("Failed to create project");
+      toast.error("Failed to create project");
     } finally {
       setCreating(false);
     }
   };
 
   const deleteProject = async (id) => {
-    if (!confirm("Delete this project and all its feedback?")) return;
-    try {
-      await API.delete(`/projects/${id}`);
-      setProjects(projects.filter((p) => p._id !== id));
-    } catch (err) {
-      setError("Failed to delete project");
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-medium">Delete this project?</p>
+          <p className="text-xs text-gray-500">All feedback will be lost.</p>
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await API.delete(`/projects/${id}`);
+                  setProjects(projects.filter((p) => p._id !== id));
+                  toast.success("Project deleted");
+                } catch {
+                  toast.error("Failed to delete project");
+                }
+              }}
+              className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded-lg"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 10000 },
+    );
   };
 
   const handleLogout = () => {
@@ -100,12 +126,6 @@ export default function Dashboard() {
             {creating ? "Creating..." : "New Project"}
           </button>
         </form>
-
-        {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
-            {error}
-          </div>
-        )}
 
         {/* Projects list */}
         {loading ? (

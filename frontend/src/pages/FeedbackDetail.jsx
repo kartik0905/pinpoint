@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import toast from "react-hot-toast";
 
 export default function FeedbackDetail() {
   const { id } = useParams();
@@ -27,6 +28,7 @@ export default function FeedbackDetail() {
     try {
       await API.patch(`/feedback/${id}`, { status });
       setFeedback({ ...feedback, status });
+      toast.success(`Marked as ${status}`);
     } catch (err) {
       console.error(err);
     }

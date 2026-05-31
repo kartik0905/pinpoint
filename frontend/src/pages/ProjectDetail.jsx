@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import toast from "react-hot-toast";
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -9,7 +10,6 @@ export default function ProjectDetail() {
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -34,19 +34,54 @@ export default function ProjectDetail() {
   const copyScriptTag = () => {
     const tag = `<script src="http://localhost:5500/widget.js" data-token="${project.token}"></script>`;
     navigator.clipboard.writeText(tag);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    toast.success("Script tag copied!");
   };
 
   const updateStatus = async (feedbackId, status) => {
     try {
       await API.patch(`/feedback/${feedbackId}`, { status });
+      toast.success(`Marked as ${status}`);
       setFeedback(
         feedback.map((f) => (f._id === feedbackId ? { ...f, status } : f)),
       );
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const deleteFeedback = async (feedbackId) => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-medium">Delete this feedback?</p>
+          <p className="text-xs text-gray-500">This cannot be undone.</p>
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await API.delete(`/feedback/${feedbackId}`);
+                  setFeedback(feedback.filter((f) => f._id !== feedbackId));
+                  toast.success("Feedback deleted");
+                } catch {
+                  toast.error("Failed to delete feedback");
+                }
+              }}
+              className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded-lg"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 10000 },
+    );
   };
 
   const filtered =
@@ -83,13 +118,13 @@ export default function ProjectDetail() {
           </p>
           <div className="bg-gray-50 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
             <code className="text-xs text-gray-600 break-all">
-              {`<script src="http://localhost:4000/widget.js" data-token="${project?.token}"></script>`}
+              {`<script src="http://localhost:5500/widget.js" data-token="${project?.token}"></script>`}
             </code>
             <button
               onClick={copyScriptTag}
               className="shrink-0 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700"
             >
-              {copied ? "Copied!" : "Copy"}
+              Copy
             </button>
           </div>
         </div>
@@ -167,6 +202,12 @@ export default function ProjectDetail() {
                       className="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 px-2 py-1 rounded-lg"
                     >
                       {item.status === "open" ? "Resolve" : "Reopen"}
+                    </button>
+                    <button
+                      onClick={() => deleteFeedback(item._id)}
+                      className="text-xs text-red-400 hover:text-red-600 border border-red-100 px-2 py-1 rounded-lg"
+                    >
+                      Delete
                     </button>
                   </div>
                 </div>
