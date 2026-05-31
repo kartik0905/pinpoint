@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -13,6 +14,22 @@ export default function ProjectDetail() {
 
   useEffect(() => {
     fetchData();
+    
+     const socket = io("http://localhost:3000");
+
+     socket.on("connect", () => {
+       socket.emit("join_project", id);
+     });
+
+     socket.on("new_feedback", (newFeedback) => {
+       setFeedback((prev) => [newFeedback, ...prev]);
+       toast.success("New feedback received!");
+     });
+
+     // Cleanup on unmount
+     return () => {
+       socket.disconnect();
+     };
   }, [id]);
 
   const fetchData = async () => {
