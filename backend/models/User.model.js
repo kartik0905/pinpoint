@@ -11,7 +11,19 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      // Not required — Google users won't have a password
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // allows multiple null values
+    },
+    name: {
+      type: String,
+      trim: true,
+    },
+    avatar: {
+      type: String,
     },
   },
   { timestamps: true },
