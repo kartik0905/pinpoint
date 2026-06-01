@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 // Array of phrases for the Render-style typing animation
 const typingPhrases = [
   "Now you will too.",
-  "Without the guesswork.",
-  "With exact DOM snapshots.",
+  "See exactly where.",
+  "With visual proof.",
 ];
 
 export default function Landing() {
@@ -271,7 +271,7 @@ export default function Landing() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           {/* Left Column: Text & CTA */}
           <div className="text-center lg:text-left flex flex-col justify-center min-h-[300px]">
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-zinc-900 dark:text-white tracking-tighter leading-[1.1] mb-6 transition-colors duration-500">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-zinc-900 dark:text-white tracking-tighter leading-[1.1] mb-6 transition-colors duration-500 min-h-[160px] sm:min-h-[180px] md:min-h-[220px]">
               Your users know what's broken. <br />
               {/* Animated Typing Text - Red/Orange Gradient */}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-orange-500 dark:from-red-400 dark:via-rose-400 dark:to-orange-400">
