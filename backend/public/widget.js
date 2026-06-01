@@ -1,7 +1,10 @@
 (function () {
   // ── Config ──────────────────────────────────────────────────────────────
   const script = document.currentScript;
-  const token = script.getAttribute("data-token");
+  if (!script) {
+    script = document.querySelector('script[src*="widget.js"]');
+  }
+  const token = script ? script.getAttribute("data-token") : null;
   const API_URL = "https://pinpoint-backend-cq9k.onrender.com/api/feedback";
 
   if (!token) {
@@ -239,6 +242,10 @@
           transform: "none", // Prevents weird scrolling offsets
           margin: "0",
         },
+        scrollY: window.scrollY,
+        scrollX: window.scrollX,
+        useCORS: true,
+        allowTaint: true,
       });
 
       // Hide button, lock scroll, show overlay and toolbar
