@@ -151,7 +151,7 @@ export default function Register() {
             Create account
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm transition-colors duration-500 font-medium">
-            {step === 1 && "Enter your university email to start"}
+            {step === 1 && "Enter your email to start"}
             {step === 2 && "Enter the verification code sent to your email"}
             {step === 3 && "Set your secure password"}
           </p>
