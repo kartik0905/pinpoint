@@ -146,19 +146,11 @@ export default function Landing() {
         <div className="absolute top-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-5xl z-50">
           <nav className="bg-white/80 dark:bg-zinc-800/60 backdrop-blur-xl border border-zinc-200 dark:border-zinc-700/50 rounded-full px-6 py-3 flex justify-between items-center shadow-lg shadow-zinc-200/50 dark:shadow-2xl transition-all duration-500">
             <Link to="/" className="flex items-center gap-2 group">
-              <svg
-                className="w-6 h-6 text-cyan-600 dark:text-cyan-400 transition-transform group-hover:rotate-90 duration-500"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v4M12 18v4M4 12H2M22 12h-2" />
-                <circle cx="12" cy="12" r="10" className="opacity-30" />
-              </svg>
+              <img
+                src="/favicon.svg"
+                alt="Pinpoint Logo"
+                className="w-7 h-7 transition-transform group-hover:scale-110 duration-500"
+              />
               <span className="text-xl font-bold font-serif text-zinc-900 dark:text-white tracking-tight transition-colors duration-500">
                 Pinpoint
               </span>
@@ -669,21 +661,7 @@ export default function Landing() {
         <footer className="border-t border-zinc-200 dark:border-zinc-800/80 py-12 bg-white/50 dark:bg-zinc-950/50 relative z-10 transition-colors duration-500">
           <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <svg
-                className="w-5 h-5 text-cyan-600 dark:text-cyan-400"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v4M12 18v4M4 12H2M22 12h-2" />
-              </svg>
-              <span className="text-xl font-bold font-serif text-zinc-900 dark:text-white tracking-tighter transition-colors duration-500">
-                Pinpoint
-              </span>
+              <img src="/favicon.svg" alt="Pinpoint Logo" className="w-6 h-6" />
             </div>
             <span className="text-sm font-mono text-zinc-500">
               © 2026 Pinpoint. Built by Kartik Garg.
