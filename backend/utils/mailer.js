@@ -7,7 +7,7 @@ const sendOtpEmail = async (email, otp) => {
   try {
     const data = await resend.emails.send({
       // Resend provides this default address for testing without a custom domain
-      from: "Pinpoint <onboarding@resend.dev>",
+      from: "Pinpoint <auth@usepinpoint.me>",
       to: email,
       subject: "Verify your Pinpoint Account",
       html: `
