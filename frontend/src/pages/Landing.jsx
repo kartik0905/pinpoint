@@ -122,7 +122,6 @@ export default function Landing() {
           50% { opacity: 0.6; }
         }
         
-        /* --- FULL STORY ANIMATION SEQUENCE (14 seconds) --- */
         @keyframes cursorStory {
           0%, 5% { left: 5%; top: 15%; opacity: 0; }
           10% { opacity: 1; }
@@ -130,14 +129,19 @@ export default function Landing() {
           22% { left: 85%; top: 82%; } /* Click Report */
           30% { left: 78%; top: 38%; } /* 2. Move to Image */
           40% { left: 78%; top: 38%; } /* Draw Circle (Hold) */
-          48% { left: 70%; top: 58%; } /* 3. Move to Textarea */
-          62% { left: 70%; top: 58%; } /* Type text (Hold) */
+          48% { left: 88%; top: 62%; } /* 3. Move to Textarea (Mouse moved out of the way) */
+          62% { left: 88%; top: 62%; } /* Type text (Hold) */
           68% { left: 80%; top: 80%; } /* 4. Move to Submit Button */
           72% { left: 80%; top: 80%; } /* Click Submit */
           76% { left: 80%; top: 80%; opacity: 0; } /* Fade out */
           100% { left: 5%; top: 15%; opacity: 0; }
         }
 
+        /* Typewriter stops exactly at the end of the text */
+        @keyframes typeText {
+          0%, 50% { width: 0ch; }
+          60%, 100% { width: 22ch; } /* Matches the exact 21 characters + 1 space padding */
+        }
         /* Adjusted to hide the button while the success message is shown */
         @keyframes btnClickStory {
           0%, 20% { transform: scale(1); opacity: 1; }
@@ -381,11 +385,10 @@ export default function Landing() {
                   </div>
 
                   {/* Textarea Simulator (Tight Wrapping Fix Applied Here) */}
-                  <div className="w-full h-12 sm:h-16 bg-zinc-50 dark:bg-[#0e1015] rounded border border-zinc-200 dark:border-zinc-800 p-2 mb-3">
-                    <div className="story-type overflow-hidden whitespace-nowrap border-r-2 border-zinc-400 dark:border-zinc-500 inline-block h-full">
-                      <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-mono">
-                        Image is broken here.
-                      </span>
+                  <div className="w-full h-12 sm:h-16 bg-zinc-50 dark:bg-[#0e1015] rounded border border-zinc-200 dark:border-zinc-800 p-3 mb-3 flex items-start">
+                    {/* font-mono is now directly on the animated div so 'ch' math works perfectly */}
+                    <div className="story-type overflow-hidden whitespace-nowrap border-r-2 border-zinc-400 dark:border-zinc-500 font-mono text-[10px] text-zinc-600 dark:text-zinc-400 h-[12px] flex items-center leading-none">
+                      Image is broken here.
                     </div>
                   </div>
 
