@@ -13,6 +13,9 @@ export default function ProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
 
+  // NEW: State for tracking which script version to show/copy
+  const [integrationMode, setIntegrationMode] = useState("button");
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme ? savedTheme === "dark" : true;
@@ -73,8 +76,13 @@ export default function ProjectDetail() {
     }
   };
 
+  // UPDATED: Dynamically generate script based on the toggle state using WIDGET_URL
   const copyScriptTag = () => {
-    const tag = `<script src="${WIDGET_URL}" data-token="${project.token}"></script>`;
+    const tag =
+      integrationMode === "stealth"
+        ? `<script\n  src="${WIDGET_URL}"\n  data-token="${project?.token}"\n  data-button="false"\n  data-context="true"\n></script>`
+        : `<script\n  src="${WIDGET_URL}"\n  data-token="${project?.token}"\n></script>`;
+
     navigator.clipboard.writeText(tag);
     toast.success("Script tag copied!");
   };
@@ -232,22 +240,39 @@ export default function ProjectDetail() {
       <div className="max-w-6xl mx-auto px-6 py-12 relative z-10">
         {/* Script tag section */}
         <div className="bg-white dark:bg-[#15171e] border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 md:p-8 mb-12 shadow-sm transition-colors duration-500">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
             <div>
               <h3 className="text-xl font-extrabold text-zinc-900 dark:text-white mb-1 transition-colors duration-500">
                 Installation
               </h3>
-              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 transition-colors duration-500">
+              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 transition-colors duration-500 mb-5">
                 Add this script tag right before the closing{" "}
                 <code className="text-xs bg-zinc-100 dark:bg-[#0e1015] border border-zinc-200 dark:border-zinc-800 px-1.5 py-0.5 rounded text-red-500 transition-colors duration-500">
                   &lt;/body&gt;
                 </code>{" "}
                 tag on your website.
               </p>
+
+              {/* Widget Configuration Toggle */}
+              <div className="flex gap-2 bg-zinc-100 dark:bg-[#0e1015] p-1 rounded-lg border border-zinc-200 dark:border-zinc-800 inline-flex">
+                <button
+                  onClick={() => setIntegrationMode("button")}
+                  className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${integrationMode === "button" ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"}`}
+                >
+                  Standard Button
+                </button>
+                <button
+                  onClick={() => setIntegrationMode("stealth")}
+                  className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${integrationMode === "stealth" ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"}`}
+                >
+                  Stealth Mode
+                </button>
+              </div>
             </div>
+
             <button
               onClick={copyScriptTag}
-              className="shrink-0 flex items-center justify-center gap-2 bg-zinc-900 dark:bg-white text-white dark:text-black px-6 py-2.5 rounded-md text-sm font-bold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm w-full sm:w-auto"
+              className="shrink-0 flex items-center justify-center gap-2 bg-zinc-900 dark:bg-white text-white dark:text-black px-6 py-2.5 rounded-md text-sm font-bold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm w-full md:w-auto"
             >
               <svg
                 className="w-4 h-4"
@@ -267,12 +292,26 @@ export default function ProjectDetail() {
           </div>
 
           <div className="bg-[#0e1015] rounded-md px-5 py-4 overflow-x-auto border border-zinc-800 shadow-inner">
-            <code className="text-sm font-mono whitespace-nowrap">
-              <span className="text-pink-500">&lt;script</span>{" "}
-              <span className="text-blue-400">src</span>=
-              <span className="text-emerald-400">"{WIDGET_URL}"</span>{" "}
-              <span className="text-blue-400">data-token</span>=
+            <code className="text-sm font-mono whitespace-nowrap leading-[1.8]">
+              <span className="text-pink-500">&lt;script</span>
+              <br />
+              &nbsp;&nbsp;<span className="text-blue-400">src</span>=
+              <span className="text-emerald-400">"{WIDGET_URL}"</span>
+              <br />
+              &nbsp;&nbsp;<span className="text-blue-400">data-token</span>=
               <span className="text-emerald-400">"{project?.token}"</span>
+              <br />
+              {integrationMode === "stealth" && (
+                <div className="animate-fade-in">
+                  &nbsp;&nbsp;<span className="text-blue-400">data-button</span>
+                  =<span className="text-emerald-400">"false"</span>
+                  <br />
+                  &nbsp;&nbsp;
+                  <span className="text-blue-400">data-context</span>=
+                  <span className="text-emerald-400">"true"</span>
+                  <br />
+                </div>
+              )}
               <span className="text-pink-500">&gt;&lt;/script&gt;</span>
             </code>
           </div>
