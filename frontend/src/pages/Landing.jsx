@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-// Array of phrases for the Render-style typing animation
 const typingPhrases = [
   "Now you will too.",
   "See exactly where.",
@@ -10,19 +9,19 @@ const typingPhrases = [
 
 export default function Landing() {
   const [activeFaq, setActiveFaq] = useState(null);
+  const [demoMode, setDemoMode] = useState("button");
 
-  // Typing effect state
+  const [integrationMode, setIntegrationMode] = useState("button");
+
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Initialize theme from localStorage, default to dark
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme ? savedTheme === "dark" : true;
   });
 
-  // Typing Animation Logic
   useEffect(() => {
     const typeSpeed = isDeleting ? 40 : 80;
 
@@ -44,7 +43,6 @@ export default function Landing() {
     return () => clearTimeout(timer);
   }, [currentText, isDeleting, currentPhraseIndex]);
 
-  // Render's specific color palette applied to the root
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
@@ -73,15 +71,15 @@ export default function Landing() {
   const faqs = [
     {
       q: "Is it safe to add a third-party script to my website?",
-      a: "Yes. Pinpoint's widget is open source — every line of code is readable before you add it. The script only activates when a user deliberately clicks the Feedback button. It does not run in the background, does not access form inputs, and does not read cookies or localStorage. You can verify this yourself before deploying.",
+      a: "Yes. Pinpoint's widget is open source — every line of code is readable before you add it. The script only activates when a user deliberately clicks the Feedback button or uses the Shift + Right-Click shortcut. It does not run in the background, does not access form inputs, and does not read cookies or localStorage.",
     },
     {
       q: "What happens to my website if Pinpoint's servers go down?",
-      a: "Nothing. The entire widget is wrapped in a try/catch block that fails silently. If our servers are unreachable, the Feedback button simply does not appear. Your website continues to load and function normally — no broken elements, no console errors visible to your users.",
+      a: "Nothing. The entire widget is wrapped in a try/catch block that fails silently. If our servers are unreachable, the widget simply does not trigger. Your website continues to load and function normally — no broken elements, no console errors visible to your users.",
     },
     {
       q: "Will this script affect my page load speed or Core Web Vitals?",
-      a: "No. The script loads asynchronously and defers initialization until after your page's critical resources have loaded. It has zero impact on your main thread, LCP, or CLS scores. The html2canvas dependency is loaded on-demand only when a user clicks the Feedback button — not on page load.",
+      a: "No. The script loads asynchronously and defers initialization until after your page's critical resources have loaded. It has zero impact on your main thread, LCP, or CLS scores. The html2canvas dependency is loaded on-demand only when a user triggers the feedback flow.",
     },
     {
       q: "Can the widget's styles break my existing CSS?",
@@ -112,7 +110,6 @@ export default function Landing() {
           background-color: ${isDarkMode ? "#0e1015" : "#ffffff"} !important;
         }
 
-        /* Ambient Float */
         @keyframes floatCard {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-12px); }
@@ -121,88 +118,135 @@ export default function Landing() {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.6; }
         }
+        @keyframes bounceX { 
+          0%, 100% { transform: translateX(0); } 
+          50% { transform: translateX(8px); } 
+        }
         
-        @keyframes cursorStory {
-          0%, 5% { left: 5%; top: 15%; opacity: 0; }
-          10% { opacity: 1; }
-          20% { left: 85%; top: 82%; } /* 1. Move to Report Button */
-          22% { left: 85%; top: 82%; } /* Click Report */
-          30% { left: 78%; top: 38%; } /* 2. Move to Image */
-          40% { left: 78%; top: 38%; } /* Draw Circle (Hold) */
-          48% { left: 88%; top: 62%; } /* 3. Move to Textarea (Mouse moved out of the way) */
-          62% { left: 88%; top: 62%; } /* Type text (Hold) */
-          68% { left: 80%; top: 80%; } /* 4. Move to Submit Button */
-          72% { left: 80%; top: 80%; } /* Click Submit */
-          76% { left: 80%; top: 80%; opacity: 0; } /* Fade out */
-          100% { left: 5%; top: 15%; opacity: 0; }
+        /* ── HERO STORY (12s loop - Slower & Deliberate) ── */
+        @keyframes heroCursor {
+          0%, 5% { left: 40%; top: 40%; opacity: 0; }
+          15%, 20% { opacity: 1; left: 78%; top: 38%; }
+          40% { left: 78%; top: 38%; }
+          50%, 55% { left: 88%; top: 62%; }
+          70% { left: 88%; top: 62%; }
+          75%, 78% { left: 80%; top: 80%; }
+          80%, 100% { left: 80%; top: 80%; opacity: 0; }
+        }
+        @keyframes heroDraw {
+          0%, 20% { stroke-dashoffset: 300; opacity: 0; }
+          22% { opacity: 1; }
+          40%, 85% { stroke-dashoffset: 0; opacity: 1; }
+          90%, 100% { opacity: 0; stroke-dashoffset: 300; }
+        }
+        @keyframes heroForm {
+          0%, 40% { opacity: 0; transform: translateY(10px); pointer-events: none; }
+          45%, 79% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+          80%, 100% { opacity: 0; transform: translateY(10px); pointer-events: none; }
+        }
+        @keyframes heroType {
+          0%, 55% { width: 0ch; }
+          70%, 100% { width: 22ch; }
+        }
+        @keyframes heroSubmitBtn {
+          0%, 77% { transform: scale(1); }
+          78% { transform: scale(0.92); }
+          79%, 100% { transform: scale(1); }
+        }
+        @keyframes heroSuccess {
+          0%, 79% { opacity: 0; transform: scale(0.95); pointer-events: none; }
+          81%, 95% { opacity: 1; transform: scale(1); pointer-events: auto; }
+          98%, 100% { opacity: 0; transform: scale(0.95); pointer-events: none; }
         }
 
-        /* Typewriter stops exactly at the end of the text */
-        @keyframes typeText {
-          0%, 50% { width: 0ch; }
-          60%, 100% { width: 22ch; } /* Matches the exact 21 characters + 1 space padding */
+        /* ── INTEGRATION STORY (14s loop) ── */
+        @keyframes fullCursorBtn {
+          0%, 5% { left: 10%; top: 10%; opacity: 0; }
+          12%, 15% { opacity: 1; left: 86%; top: 88%; }
+          25%, 30% { left: 80%; top: 35%; }
+          45% { left: 80%; top: 35%; }
+          55%, 60% { left: 80%; top: 68%; }
+          75% { left: 80%; top: 68%; }
+          80%, 82% { left: 80%; top: 86%; }
+          85%, 100% { opacity: 0; }
         }
-        /* Adjusted to hide the button while the success message is shown */
-        @keyframes btnClickStory {
-          0%, 20% { transform: scale(1); opacity: 1; }
-          22% { transform: scale(0.92); opacity: 1; }
-          24%, 74% { transform: scale(1); opacity: 1; }
-          75%, 95% { opacity: 0; transform: scale(1); } /* Button vanishes */
-          96%, 100% { opacity: 1; transform: scale(1); } /* Button reappears */
+        @keyframes fullCursorStealth {
+          0%, 5% { left: 10%; top: 10%; opacity: 0; }
+          12%, 15% { opacity: 1; left: 50%; top: 30%; }
+          20%, 22% { left: 55%; top: 36%; }
+          30%, 35% { left: 80%; top: 35%; }
+          45% { left: 80%; top: 35%; }
+          55%, 60% { left: 80%; top: 68%; }
+          75% { left: 80%; top: 68%; }
+          80%, 82% { left: 80%; top: 86%; }
+          85%, 100% { opacity: 0; }
         }
-
-        @keyframes overlayStory {
-          0%, 20% { opacity: 0; }
-          25%, 90% { opacity: 1; }
-          95%, 100% { opacity: 0; }
+        /* Custom styling for the Shift+RightClick popup */
+        @keyframes shiftKeyAnimate {
+          0%, 10% { opacity: 0; transform: translateY(5px) scale(0.95); }
+          12%, 16% { opacity: 1; transform: translateY(0) scale(1.05); filter: drop-shadow(0 0 8px rgba(239,68,68,0.5)); }
+          18%, 100% { opacity: 0; transform: translateY(5px) scale(0.95); }
         }
-
-        @keyframes drawStory {
+        @keyframes fullBtnAnimate {
+          0%, 14% { transform: scale(1); opacity: 1; }
+          15% { transform: scale(0.92); }
+          16%, 94% { transform: scale(1); opacity: 0; }
+          95%, 100% { transform: scale(1); opacity: 1; } 
+        }
+        @keyframes fullContextAnimate {
+          0%, 15% { opacity: 0; transform: scale(0.95); pointer-events: none; }
+          16%, 22% { opacity: 1; transform: scale(1); pointer-events: auto; }
+          23%, 100% { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        }
+        @keyframes fullOverlay {
+          0%, 15% { opacity: 0; }
+          18%, 94% { opacity: 1; } 
+          96%, 100% { opacity: 0; }
+        }
+        @keyframes fullDraw {
           0%, 30% { stroke-dashoffset: 300; opacity: 0; }
           32% { opacity: 1; }
-          40%, 90% { stroke-dashoffset: 0; opacity: 1; }
+          45%, 94% { stroke-dashoffset: 0; opacity: 1; }
           95%, 100% { opacity: 0; stroke-dashoffset: 300; }
         }
-
-        @keyframes formAppear {
-          0%, 42% { opacity: 0; transform: translateY(10px); pointer-events: none; }
-          45%, 72% { opacity: 1; transform: translateY(0); pointer-events: auto; }
-          75%, 100% { opacity: 0; transform: translateY(10px); pointer-events: none; }
+        @keyframes fullForm {
+          0%, 15% { opacity: 0; transform: translateY(10px); pointer-events: none; }
+          18%, 82% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+          83%, 100% { opacity: 0; transform: translateY(10px); pointer-events: none; }
         }
-
-        /* Tightly wrapping width to text length (22ch covers "Image is broken here.") */
-        @keyframes typeText {
-          0%, 50% { width: 0ch; }
-          60%, 100% { width: 22ch; }
+        @keyframes fullType {
+          0%, 60% { width: 0ch; }
+          75%, 100% { width: 22ch; }
         }
-
-        @keyframes submitClickStory {
-          0%, 70% { transform: scale(1); }
-          72% { transform: scale(0.95); }
-          74%, 100% { transform: scale(1); }
-        }
-
-        @keyframes successAppear {
-          0%, 73% { opacity: 0; transform: scale(0.95); pointer-events: none; }
-          76%, 90% { opacity: 1; transform: scale(1); pointer-events: auto; }
+        @keyframes fullSuccess {
+          0%, 83% { opacity: 0; transform: scale(0.95); pointer-events: none; }
+          85%, 93% { opacity: 1; transform: scale(1); pointer-events: auto; }
           95%, 100% { opacity: 0; transform: scale(0.95); pointer-events: none; }
         }
 
         .animate-float-card { animation: floatCard 6s ease-in-out infinite; }
         .animate-pulse-slow { animation: pulseSlow 4s ease-in-out infinite; }
         
-        /* Applied Story Classes (14s loop) */
-        .story-cursor { animation: cursorStory 14s infinite ease-in-out; }
-        .story-btn-main { animation: btnClickStory 14s infinite ease-in-out; }
-        .story-overlay { animation: overlayStory 14s infinite; }
-        .story-draw { stroke-dasharray: 300; stroke-dashoffset: 300; animation: drawStory 14s infinite ease-out; }
-        .story-form { animation: formAppear 14s infinite ease-in-out forwards; }
-        .story-type { animation: typeText 14s infinite steps(21, end); }
-        .story-submit { animation: submitClickStory 14s infinite ease-in-out; }
-        .story-success { animation: successAppear 14s infinite ease-in-out forwards; }
+        .hero-cursor { animation: heroCursor 12s infinite ease-in-out; }
+        .hero-draw { stroke-dasharray: 300; stroke-dashoffset: 300; animation: heroDraw 12s infinite ease-out; }
+        .hero-form { animation: heroForm 12s infinite ease-in-out forwards; }
+        .hero-type { animation: heroType 12s infinite steps(21, end); }
+        .hero-submit { animation: heroSubmitBtn 12s infinite ease-in-out; }
+        .hero-success { animation: heroSuccess 12s infinite ease-in-out forwards; }
+
+        .full-cursor-btn { animation: fullCursorBtn 14s infinite ease-in-out; }
+        .full-cursor-stealth { animation: fullCursorStealth 14s infinite ease-in-out; }
+        .shift-key-anim { animation: shiftKeyAnimate 14s infinite ease-in-out; }
+        .full-btn { animation: fullBtnAnimate 14s infinite ease-in-out; transform-origin: bottom right; }
+        .full-context { animation: fullContextAnimate 14s infinite ease-in-out; }
+        .full-overlay { animation: fullOverlay 14s infinite; }
+        .full-draw { stroke-dasharray: 300; stroke-dashoffset: 300; animation: fullDraw 14s infinite ease-out; }
+        .full-form { animation: fullForm 14s infinite ease-in-out forwards; }
+        .full-type { animation: fullType 14s infinite steps(21, end); }
+        .full-success { animation: fullSuccess 14s infinite ease-in-out forwards; }
       `}</style>
 
-      {/* Full-width Sticky Navbar */}
+      {/* Navbar */}
       <div className="fixed top-0 w-full z-50 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-[#0e1015]/80 backdrop-blur-md transition-colors duration-500">
         <nav className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-3 group">
@@ -219,7 +263,6 @@ export default function Landing() {
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none"
-              aria-label="Toggle Dark Mode"
             >
               {isDarkMode ? (
                 <svg
@@ -257,7 +300,6 @@ export default function Landing() {
             >
               Log in
             </Link>
-
             <Link
               to="/register"
               className="group text-sm bg-zinc-900 dark:bg-white text-white dark:text-black px-5 py-2 rounded-md font-bold transition-all shadow-md"
@@ -270,14 +312,12 @@ export default function Landing() {
         </nav>
       </div>
 
-      {/* Render-Style Split Screen Hero Section */}
+      {/* ── HERO SECTION ── */}
       <section className="max-w-7xl mx-auto px-6 pt-32 md:pt-48 pb-20 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-          {/* Left Column: Text & CTA */}
           <div className="text-center lg:text-left flex flex-col justify-center min-h-[300px]">
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-zinc-900 dark:text-white tracking-tighter leading-[1.1] mb-6 transition-colors duration-500 min-h-[160px] sm:min-h-[180px] md:min-h-[220px]">
               Your users know what's broken. <br />
-              {/* Animated Typing Text - Red/Orange Gradient */}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-orange-500 dark:from-red-400 dark:via-rose-400 dark:to-orange-400">
                 {currentText}
               </span>
@@ -285,12 +325,10 @@ export default function Landing() {
                 |
               </span>
             </h1>
-
             <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed transition-colors duration-500 font-medium">
               Stop asking "what browser are you using?" Let users highlight
               exactly what's wrong with a screenshot, a drawing, and a comment.
             </p>
-
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Link
                 to="/register"
@@ -301,14 +339,9 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Right Column: Visual Animation */}
           <div className="relative w-full max-w-lg mx-auto lg:max-w-full mt-10 lg:mt-0">
-            {/* Red/Orange Neon Glow anchoring the browser window */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-br from-red-500/10 to-orange-500/10 dark:from-red-600/20 dark:to-orange-600/20 blur-[80px] rounded-full pointer-events-none -z-10"></div>
-
-            {/* Canvas Container */}
             <div className="relative w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#15171e] shadow-2xl overflow-hidden text-left transition-colors duration-500 animate-float-card">
-              {/* Browser Header */}
               <div className="flex items-center px-4 py-3 border-b border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-[#0e1015] transition-colors duration-500">
                 <div className="flex gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-400 dark:bg-red-500"></div>
@@ -331,30 +364,24 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Browser Body & Animation container */}
               <div className="relative h-[300px] sm:h-[350px] bg-white dark:bg-[#15171e] p-6 sm:p-8 overflow-hidden transition-colors duration-500">
-                {/* Fake Website Wireframe - Left Content */}
-                <div className="w-7/12 sm:w-2/3 flex flex-col gap-4 sm:gap-6">
-                  <div className="w-1/2 h-4 sm:h-6 bg-zinc-100 dark:bg-zinc-800 rounded"></div>
-                  <div className="w-full h-24 sm:h-32 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg"></div>
-                  <div className="w-5/6 h-3 sm:h-4 bg-zinc-100 dark:bg-zinc-800 rounded"></div>
-                  <div className="w-4/6 h-3 sm:h-4 bg-zinc-100 dark:bg-zinc-800 rounded"></div>
+                <div className="w-7/12 sm:w-2/3 flex flex-col gap-4 sm:gap-6 opacity-40 blur-[1px]">
+                  <div className="w-1/2 h-4 sm:h-6 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                  <div className="w-full h-24 sm:h-32 bg-zinc-200 dark:bg-zinc-800/50 rounded-lg"></div>
+                  <div className="w-5/6 h-3 sm:h-4 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
                 </div>
 
-                {/* The Target Card */}
                 <div className="absolute right-6 sm:right-8 top-12 sm:top-16 w-[35%] sm:w-1/4 h-24 sm:h-32 bg-red-50 dark:bg-red-900/10 border-2 border-dashed border-red-300 dark:border-red-900/50 rounded-lg flex items-center justify-center overflow-visible">
                   <span className="text-red-500 dark:text-red-500 text-[10px] sm:text-xs font-mono font-bold tracking-wider">
                     Failed Image
                   </span>
-
-                  {/* Circle overlay inside target */}
                   <svg
                     className="absolute inset-0 w-full h-full pointer-events-none z-30 overflow-visible scale-125"
                     viewBox="0 0 100 100"
                     preserveAspectRatio="none"
                   >
                     <ellipse
-                      className="story-draw"
+                      className="hero-draw"
                       cx="50"
                       cy="50"
                       rx="40"
@@ -367,38 +394,26 @@ export default function Landing() {
                   </svg>
                 </div>
 
-                {/* Widget Dark Overlay */}
-                <div className="absolute inset-0 bg-black/5 dark:bg-black/40 story-overlay opacity-0 pointer-events-none z-10"></div>
+                <div className="absolute inset-0 bg-black/5 dark:bg-black/40 pointer-events-none z-10"></div>
 
-                {/* Step 1: Initial Button */}
-                <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-8 bg-red-600 text-white px-4 py-2 sm:px-5 sm:py-3 rounded-md text-xs sm:text-sm font-bold shadow-lg shadow-red-500/30 flex items-center gap-2 story-btn-main z-20 origin-center">
-                  Report Issue
-                </div>
-
-                {/* Step 2: The Feedback Form Popup */}
-                <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 w-56 sm:w-64 bg-white dark:bg-[#1a1c23] border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-2xl p-4 z-40 story-form opacity-0">
+                <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 w-56 sm:w-64 bg-white dark:bg-[#1a1c23] border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-2xl p-4 z-40 hero-form opacity-0">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white">
                       Submit Feedback
                     </span>
                     <span className="w-2 h-2 rounded-full bg-red-500"></span>
                   </div>
-
-                  {/* Textarea Simulator (Tight Wrapping Fix Applied Here) */}
                   <div className="w-full h-12 sm:h-16 bg-zinc-50 dark:bg-[#0e1015] rounded border border-zinc-200 dark:border-zinc-800 p-3 mb-3 flex items-start">
-                    {/* font-mono is now directly on the animated div so 'ch' math works perfectly */}
-                    <div className="story-type overflow-hidden whitespace-nowrap border-r-2 border-zinc-400 dark:border-zinc-500 font-mono text-[10px] text-zinc-600 dark:text-zinc-400 h-[12px] flex items-center leading-none">
+                    <div className="hero-type overflow-hidden whitespace-nowrap border-r-2 border-zinc-400 dark:border-zinc-500 font-mono text-[10px] text-zinc-600 dark:text-zinc-400 h-[12px] flex items-center leading-none">
                       Image is broken here.
                     </div>
                   </div>
-
-                  <div className="w-full py-2 bg-red-600 rounded text-center text-white text-[10px] sm:text-xs font-bold story-submit origin-center">
+                  <div className="w-full py-2 bg-red-600 rounded text-center text-white text-[10px] sm:text-xs font-bold origin-center hero-submit">
                     Send Report
                   </div>
                 </div>
 
-                {/* Step 3: Success Confirmation */}
-                <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 w-56 sm:w-64 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg shadow-2xl p-6 z-40 story-success opacity-0 flex flex-col items-center justify-center">
+                <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 w-56 sm:w-64 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg shadow-2xl p-6 z-40 hero-success opacity-0 flex flex-col items-center justify-center">
                   <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center mb-2 shadow-lg shadow-emerald-500/30">
                     <svg
                       className="w-5 h-5 text-white"
@@ -419,9 +434,8 @@ export default function Landing() {
                   </span>
                 </div>
 
-                {/* The Floating Mouse Tracker Component */}
                 <svg
-                  className="absolute w-5 h-5 sm:w-6 sm:h-6 text-zinc-900 dark:text-white drop-shadow-md story-cursor z-50 pointer-events-none"
+                  className="absolute w-5 h-5 sm:w-6 sm:h-6 text-zinc-900 dark:text-white drop-shadow-md z-50 pointer-events-none hero-cursor"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   stroke="white"
@@ -435,85 +449,297 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Script tag preview */}
-      <section className="max-w-5xl mx-auto px-6 py-20 relative z-10">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="bg-zinc-50 dark:bg-[#15171e] border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-xl transition-colors duration-500">
-            <div className="flex items-center px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-[#0e1015] transition-colors duration-500">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-400 dark:bg-zinc-700"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-400 dark:bg-zinc-700"></div>
-                <div className="w-3 h-3 rounded-full bg-green-400 dark:bg-zinc-700"></div>
+      {/* ── SCRIPT INTEGRATION SECTION ── */}
+      <section className="max-w-6xl mx-auto px-6 py-20 relative z-10">
+        <div className="mb-10 text-center md:text-left">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-white mb-2 tracking-tight">
+            Drop it in. It just works.
+          </h2>
+          <p className="text-zinc-600 dark:text-zinc-400 font-medium">
+            Toggle the script attributes below to see how your integration
+            transforms.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-[1fr_auto_1fr] gap-8 items-center bg-zinc-50 dark:bg-[#12141a] border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-10 shadow-xl transition-colors duration-500">
+          <div className="flex flex-col">
+            {/* The Togglers & Info Text */}
+            <div className="mb-6">
+              <div className="flex gap-2 mb-3 bg-white dark:bg-[#0e1015] p-1 rounded-lg border border-zinc-200 dark:border-zinc-800 self-start inline-flex">
+                <button
+                  onClick={() => setIntegrationMode("button")}
+                  className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${integrationMode === "button" ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"}`}
+                >
+                  Standard Button
+                </button>
+                <button
+                  onClick={() => setIntegrationMode("stealth")}
+                  className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${integrationMode === "stealth" ? "bg-red-500 text-white shadow-md shadow-red-500/20" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"}`}
+                >
+                  Stealth Mode
+                </button>
               </div>
-              <span className="ml-4 text-xs font-mono font-bold text-zinc-500">
-                index.html
-              </span>
+              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 leading-relaxed min-h-[40px] max-w-sm">
+                {integrationMode === "button"
+                  ? "The default integration. A floating button sits in the corner of your site, ready for users to report bugs instantly."
+                  : "Built for staging environments. The UI is completely hidden until a user executes the specific trigger shortcut (Shift + Right-Click)."}
+              </p>
             </div>
-            <div className="p-6 overflow-x-auto">
-              <code className="text-sm font-mono leading-loose whitespace-nowrap text-zinc-800 dark:text-zinc-300">
-                <span className="text-zinc-400 dark:text-zinc-600">
-                  &lt;!-- Drop this in your body --&gt;
+
+            <div className="bg-white dark:bg-[#0e1015] border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm transition-colors duration-500">
+              <div className="flex items-center px-4 py-3 border-b border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-[#1a1c23] transition-colors duration-500">
+                <span className="text-[11px] font-mono font-bold text-zinc-500">
+                  index.html
                 </span>
-                <br />
-                <span className="text-pink-600 dark:text-pink-400">
-                  &lt;script
-                </span>
-                <br />
-                &nbsp;&nbsp;
-                <span className="text-blue-500 dark:text-blue-400">src</span>=
-                <span className="text-emerald-600 dark:text-emerald-300">
-                  "https://pinpoint.io/widget.js"
-                </span>
-                <br />
-                &nbsp;&nbsp;
-                <span className="text-blue-500 dark:text-blue-400">
-                  data-token
-                </span>
-                =
-                <span className="text-emerald-600 dark:text-emerald-300">
-                  "pk_live_..."
-                </span>
-                <br />
-                <span className="text-pink-600 dark:text-pink-400">
-                  &gt;&lt;/script&gt;
-                </span>
-              </code>
+              </div>
+              <div className="p-6 overflow-x-auto min-h-[220px] flex items-center">
+                <code className="text-sm font-mono leading-[1.8] whitespace-nowrap text-zinc-800 dark:text-zinc-300">
+                  <span className="text-zinc-400 dark:text-zinc-600">
+                    &lt;!-- Drop this in your body --&gt;
+                  </span>
+                  <br />
+                  <span className="text-pink-600 dark:text-pink-400">
+                    &lt;script
+                  </span>
+                  <br />
+                  &nbsp;&nbsp;
+                  <span className="text-blue-500 dark:text-blue-400">src</span>=
+                  <span className="text-emerald-600 dark:text-emerald-300">
+                    "https://usepinpoint.me/widget.js"
+                  </span>
+                  <br />
+                  &nbsp;&nbsp;
+                  <span className="text-blue-500 dark:text-blue-400">
+                    data-token
+                  </span>
+                  =
+                  <span className="text-emerald-600 dark:text-emerald-300">
+                    "pk_live_..."
+                  </span>
+                  <br />
+                  {integrationMode === "stealth" && (
+                    <div className="animate-fade-in">
+                      &nbsp;&nbsp;
+                      <span className="text-blue-500 dark:text-blue-400">
+                        data-button
+                      </span>
+                      =
+                      <span className="text-emerald-600 dark:text-emerald-300">
+                        "false"
+                      </span>
+                      <br />
+                      &nbsp;&nbsp;
+                      <span className="text-blue-500 dark:text-blue-400">
+                        data-context
+                      </span>
+                      =
+                      <span className="text-emerald-600 dark:text-emerald-300">
+                        "true"
+                      </span>
+                      <br />
+                    </div>
+                  )}
+                  {integrationMode === "button" && (
+                    <div className="animate-fade-in opacity-50 select-none">
+                      <span className="text-zinc-400 dark:text-zinc-600">
+                        &nbsp;&nbsp;&lt;!-- No config needed for default --&gt;
+                      </span>
+                      <br />
+                    </div>
+                  )}
+                  <span className="text-pink-600 dark:text-pink-400">
+                    &gt;&lt;/script&gt;
+                  </span>
+                </code>
+              </div>
             </div>
           </div>
 
-          {/* Abstract UI Output */}
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center text-zinc-300 dark:text-zinc-700 animate-bounce-x">
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </div>
-            <div className="relative w-full h-48 bg-zinc-100 dark:bg-[#15171e] border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-inner transition-colors duration-500">
-              <div className="absolute top-4 left-4 right-4 h-4 bg-zinc-200 dark:bg-zinc-800 rounded transition-colors duration-500"></div>
-              <div className="absolute top-12 left-4 w-1/2 h-16 bg-zinc-200 dark:bg-zinc-800 rounded transition-colors duration-500"></div>
-              <div className="absolute top-12 right-4 w-1/3 h-16 bg-zinc-200 dark:bg-zinc-800 rounded transition-colors duration-500"></div>
+          <div className="hidden md:flex flex-col items-center justify-center text-zinc-300 dark:text-zinc-700 animate-bounce-x">
+            <svg
+              className="w-10 h-10 text-red-500/50"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              />
+            </svg>
+            <span className="text-[10px] font-bold mt-2 tracking-widest text-zinc-400 uppercase">
+              Triggers
+            </span>
+          </div>
 
-              {/* Floating Widget Output */}
-              <div className="absolute bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded-md text-xs font-bold shadow-lg shadow-red-500/30 flex items-center gap-2">
-                <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                Report Issue
+          <div className="relative w-full aspect-[4/3] bg-white dark:bg-[#1a1c23] border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-lg transition-colors duration-500">
+            <div className="p-6 w-full h-full">
+              <div className="w-2/3 h-4 bg-zinc-100 dark:bg-zinc-800 rounded mb-4"></div>
+              <div className="w-full h-20 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg mb-4"></div>
+              <div className="absolute right-4 top-16 w-1/3 h-20 bg-red-50 dark:bg-red-900/10 border border-dashed border-red-300 dark:border-red-900/50 rounded flex items-center justify-center">
+                <span className="text-red-500 text-[8px] font-mono font-bold">
+                  Failed Image
+                </span>
+                <svg
+                  className="absolute inset-0 w-full h-full pointer-events-none z-30 overflow-visible scale-110"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                >
+                  <ellipse
+                    key={integrationMode}
+                    className="full-draw"
+                    cx="50"
+                    cy="50"
+                    rx="40"
+                    ry="28"
+                    fill="none"
+                    stroke="#ef4444"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </div>
             </div>
+
+            {/* Shift + Right Click visual indicator for Stealth mode */}
+            {integrationMode === "stealth" && (
+              <div
+                className="absolute z-20 flex items-center justify-center shift-key-anim"
+                style={{ top: "22%", left: "33%" }}
+              >
+                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-zinc-800 border-2 border-zinc-600 shadow-lg font-mono text-[9px] font-bold tracking-widest">
+                  <span className="bg-zinc-700 text-white px-1 rounded border-b-2 border-zinc-900">
+                    ⇧ SHIFT
+                  </span>
+                  <span className="text-zinc-400 text-[12px]">+</span>
+                  <span className="flex items-center gap-1 text-red-400">
+                    <svg
+                      width="10"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-zinc-300"
+                    >
+                      <rect x="5" y="2" width="14" height="20" rx="7" />
+                      <path d="M12 2v6" />
+                      <path d="M12 8h7" className="stroke-red-500" />
+                    </svg>
+                    RIGHT-CLICK
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div
+              key={`overlay-${integrationMode}`}
+              className="absolute inset-0 bg-black/10 dark:bg-black/60 pointer-events-none z-10 opacity-0 full-overlay"
+            ></div>
+
+            {integrationMode === "button" ? (
+              <div
+                key="btn-trigger"
+                className="absolute bottom-4 right-4 bg-red-600 text-white px-3 py-1.5 rounded-md text-[10px] font-bold shadow-lg z-20 full-btn"
+              >
+                Report Issue
+              </div>
+            ) : (
+              <div
+                key="stealth-trigger"
+                className="absolute w-32 bg-[#18181b] border border-zinc-800 rounded-md p-1 shadow-2xl z-20 full-context"
+                style={{ top: "30%", left: "50%" }}
+              >
+                <div className="flex items-center gap-1.5 px-2 py-1.5 text-white text-[9px] font-medium rounded bg-[#4F46E5]">
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m8 2 1.88 1.88" />
+                    <path d="M14.12 3.88 16 2" />
+                    <path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1" />
+                    <path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6" />
+                    <path d="M12 20v-9" />
+                    <path d="M6.53 9C4.6 8.8 3 7.1 3 5" />
+                    <path d="M6 13H2" />
+                    <path d="M3 21c0-2.1 1.7-3.9 3.8-4" />
+                    <path d="M20.97 5c-1.9.2-3.53 1.9-3.53 3.8" />
+                    <path d="M22 13h-4" />
+                    <path d="M17.2 17c2.1.1 3.8 1.9 3.8 4" />
+                  </svg>
+                  Report an Issue
+                </div>
+              </div>
+            )}
+
+            <div
+              key={`form-${integrationMode}`}
+              className="absolute bottom-4 right-4 w-48 bg-white dark:bg-[#1a1c23] border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl p-3 z-30 full-form opacity-0"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[9px] font-bold text-zinc-900 dark:text-white">
+                  Submit Feedback
+                </span>
+              </div>
+              <div className="w-full h-10 bg-zinc-50 dark:bg-[#0e1015] rounded border border-zinc-200 dark:border-zinc-800 p-2 mb-2 flex items-center">
+                <div className="full-type overflow-hidden whitespace-nowrap border-r border-zinc-400 font-mono text-[8px] text-zinc-600 dark:text-zinc-400">
+                  Image is broken here.
+                </div>
+              </div>
+              <div className="w-full py-1.5 bg-red-600 rounded text-center text-white text-[9px] font-bold">
+                Send Report
+              </div>
+            </div>
+
+            <div
+              key={`success-${integrationMode}`}
+              className="absolute bottom-4 right-4 w-48 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg shadow-xl p-4 z-30 full-success opacity-0 flex flex-col items-center justify-center"
+            >
+              <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center mb-1">
+                <svg
+                  className="w-3 h-3 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={3}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                Sent Successfully
+              </span>
+            </div>
+
+            <svg
+              key={`cursor-${integrationMode}`}
+              className={`absolute w-4 h-4 text-zinc-900 dark:text-white drop-shadow-md z-40 pointer-events-none ${integrationMode === "button" ? "full-cursor-btn" : "full-cursor-stealth"}`}
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="white"
+              strokeWidth="1"
+            >
+              <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L5.5 3.21z" />
+            </svg>
           </div>
         </div>
       </section>
 
-      {/* Visual Bento Box Features */}
+      {/* ── FEATURES (BENTO BOX) ── */}
       <section className="max-w-6xl mx-auto px-6 py-24 relative z-10">
         <div className="mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-4 tracking-tight transition-colors duration-500">
@@ -524,9 +750,7 @@ export default function Landing() {
           </p>
         </div>
 
-        {/* Updated grid layout allowing tickets to grow freely */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(320px,auto)]">
-          {/* Large Card 1: Visual annotations */}
           <div className="md:col-span-2 bg-white dark:bg-[#15171e] border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 flex flex-col hover:border-red-300 dark:hover:border-zinc-600 transition-all shadow-sm dark:shadow-none overflow-hidden group">
             <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2 relative z-10 tracking-tight">
               Visual Annotations
@@ -535,7 +759,6 @@ export default function Landing() {
               Users draw directly on the screen to prove it.
             </span>
 
-            {/* Syncing the story: Using the "Failed Image" visual context */}
             <div className="flex-1 bg-zinc-50 dark:bg-[#0e1015] rounded-xl relative border border-zinc-200 dark:border-zinc-800 overflow-hidden transition-colors duration-500">
               <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white dark:bg-[#1a1c23] border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-white text-[11px] font-bold px-4 py-2 rounded-md flex gap-4 items-center shadow-lg z-20 transition-colors duration-500">
                 <span className="text-zinc-500 dark:text-zinc-400">Cancel</span>
@@ -574,7 +797,6 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Small Card 1: Auto-Screenshots */}
           <div className="md:col-span-1 bg-white dark:bg-[#15171e] border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 flex flex-col hover:border-red-300 dark:hover:border-zinc-600 transition-all shadow-sm dark:shadow-none overflow-hidden group">
             <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2 relative z-10 tracking-tight">
               Auto-Screenshots
@@ -594,7 +816,6 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Small Card 2: Environment Data */}
           <div className="md:col-span-1 bg-white dark:bg-[#15171e] border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 flex flex-col hover:border-red-300 dark:hover:border-zinc-600 transition-all shadow-sm dark:shadow-none overflow-hidden">
             <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4 relative z-10 tracking-tight">
               Environment Data
@@ -607,9 +828,7 @@ export default function Landing() {
               <br />
               <div className="animate-pulse-slow">
                 &nbsp;&nbsp;
-                <span className="text-zinc-800 dark:text-zinc-300">
-                  os:
-                </span>{" "}
+                <span className="text-zinc-800 dark:text-zinc-300">os:</span>{" "}
                 <span className="text-emerald-600 dark:text-emerald-300">
                   "macOS"
                 </span>
@@ -635,7 +854,6 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Large Card 2: Real-time Dashboard */}
           <div className="md:col-span-2 bg-white dark:bg-[#15171e] border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 flex flex-col hover:border-red-300 dark:hover:border-zinc-600 transition-all shadow-sm dark:shadow-none overflow-hidden group">
             <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2 relative z-10 tracking-tight">
               Real-time Dashboard
@@ -645,7 +863,6 @@ export default function Landing() {
             </span>
 
             <div className="flex-1 bg-zinc-50 dark:bg-[#0e1015] rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 flex gap-3 transition-colors duration-500">
-              {/* TO DO Column */}
               <div className="flex-1 bg-zinc-100/50 dark:bg-[#15171e] rounded-lg border border-zinc-200/50 dark:border-zinc-800 p-2 sm:p-3 flex flex-col gap-2.5 transition-colors duration-500">
                 <div className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 tracking-wider flex items-center justify-between px-1">
                   TODO{" "}
@@ -654,7 +871,6 @@ export default function Landing() {
                   </span>
                 </div>
 
-                {/* The Submitted Story Ticket */}
                 <div className="bg-white dark:bg-[#1a1c23] p-2.5 sm:p-3 rounded-md border border-red-200 dark:border-red-500/30 animate-ticket shadow-sm transition-colors duration-500 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
                   <div className="flex items-center justify-between mb-1.5">
@@ -669,7 +885,6 @@ export default function Landing() {
                     Image is broken here.
                   </div>
 
-                  {/* Miniature Snapshot matching the hero */}
                   <div className="w-full h-8 sm:h-10 bg-zinc-50 dark:bg-[#0e1015] rounded border border-zinc-200 dark:border-zinc-800 mb-2 flex items-center justify-center overflow-hidden">
                     <div className="w-1/2 h-full bg-red-500/10 border border-red-500/20 rounded-sm m-1 flex items-center justify-center">
                       <span className="text-[5px] text-red-500 font-bold leading-none">
@@ -700,7 +915,6 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* IN PROGRESS Column */}
               <div className="flex-1 bg-zinc-100/50 dark:bg-[#15171e] rounded-lg border border-zinc-200/50 dark:border-zinc-800 p-2 sm:p-3 flex flex-col gap-2.5 transition-colors duration-500">
                 <div className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 tracking-wider flex items-center justify-between px-1">
                   IN PROGRESS{" "}
@@ -724,7 +938,6 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* DONE Column */}
               <div className="flex-1 bg-zinc-100/50 dark:bg-[#15171e] rounded-lg border border-zinc-200/50 dark:border-zinc-800 p-2 sm:p-3 flex flex-col gap-2.5 transition-colors duration-500">
                 <div className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 tracking-wider flex items-center justify-between px-1">
                   DONE{" "}
@@ -752,7 +965,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FAQ Accordion Design */}
+      {/* ── FAQs ── */}
       <section className="py-24 relative z-10 border-t border-zinc-200 dark:border-zinc-800">
         <div className="max-w-3xl mx-auto px-6">
           <div className="mb-12">
@@ -785,13 +998,8 @@ export default function Landing() {
                     +
                   </span>
                 </button>
-
                 <div
-                  className={`transition-all duration-300 ease-in-out ${
-                    activeFaq === index
-                      ? "max-h-[500px] opacity-100"
-                      : "max-h-0 opacity-0"
-                  }`}
+                  className={`transition-all duration-300 ease-in-out ${activeFaq === index ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}
                 >
                   <div className="p-6 pt-0 text-zinc-600 dark:text-zinc-400 leading-relaxed text-base font-medium">
                     {faq.a}
@@ -803,7 +1011,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ── CTA ── */}
       <section className="py-32 relative z-10 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#0e1015]">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-5xl md:text-6xl font-extrabold text-zinc-900 dark:text-white mb-6 tracking-tight transition-colors duration-500">
@@ -822,28 +1030,22 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ── Footer ── */}
       <footer className="border-t border-zinc-200 dark:border-zinc-800 py-12 bg-white dark:bg-[#0e1015] relative z-10 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          {/* Left: Brand */}
           <div className="flex items-center gap-3">
             <img src="/favicon.svg" alt="Pinpoint Logo" className="w-6 h-6" />
             <span className="text-xl font-extrabold text-zinc-900 dark:text-white tracking-tight transition-colors duration-500">
               Pinpoint
             </span>
           </div>
-
-          {/* Middle: Copyright */}
           <span className="text-sm font-semibold text-zinc-500 text-center">
             © 2026 Pinpoint. Built by Kartik Garg.
           </span>
-
-          {/* Right: Contact & Socials */}
           <div className="flex items-center gap-6">
             <a
               href="mailto:kartikamitgarg2005@gmail.com"
               className="text-zinc-500 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-2 text-sm font-semibold"
-              aria-label="Email Contact"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -861,13 +1063,11 @@ export default function Landing() {
               </svg>
               <span className="hidden sm:inline">Contact</span>
             </a>
-
             <a
               href="https://github.com/kartik0905"
               target="_blank"
               rel="noopener noreferrer"
               className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              aria-label="GitHub Profile"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
