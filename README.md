@@ -2,7 +2,7 @@
 
 Visual feedback collection tool for web developers. Users highlight exactly what's broken on your website — with a screenshot, a drawing, and a comment. You see it instantly in your dashboard.
 
-Live: [pinpoint.vercel.app](https://pinpoint-ten-sage.vercel.app/)
+Live: [usepinpoint.me](https://pinpoint-ten-sage.vercel.app/)
 
 ---
 
